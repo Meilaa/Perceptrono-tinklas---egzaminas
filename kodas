@@ -1,0 +1,368 @@
+clc
+clear all
+close all
+
+%% Pradiniai duomenys
+
+x = 0.1:1/22:1; %galima rinktis kokį nori
+
+% Norimas atsakas (galima pasirinkti bet kokį, paėmiau iš laboratorinio
+d = ((1 + 0.6*sin(2*pi*x/0.7)) + 0.3*sin(2*pi*x))/2;
+
+figure
+plot(x, d, '*');
+hold on
+
+
+%% Tinklo inicializavimas
+
+% ==========================================================
+% Pirmas sluoksnis - 2 neuronai
+% Iejimai: x(n) ir y(n-1)
+% ==========================================================
+
+% 1 neuronas
+w11_1 = rand(1);    % svoris nuo x(n)
+w12_1 = rand(1);    % svoris nuo y(n-1)
+
+% 2 neuronas
+w21_1 = rand(1);    % svoris nuo x(n)
+w22_1 = rand(1);    % svoris nuo y(n-1)
+
+% Bias
+b1_1 = rand(1);
+b2_1 = rand(1);
+
+
+% ==========================================================
+% Antras sluoksnis - 3 neuronai
+% ==========================================================
+
+% 1 neuronas
+w11_2 = rand(1);
+w12_2 = rand(1);
+
+% 2 neuronas
+w21_2 = rand(1);
+w22_2 = rand(1);
+
+% 3 neuronas
+w31_2 = rand(1);
+w32_2 = rand(1);
+
+% Bias
+b1_2 = rand(1);
+b2_2 = rand(1);
+b3_2 = rand(1);
+
+
+% ==========================================================
+% Trecias sluoksnis - 1 isejimo neuronas
+% ==========================================================
+
+w11_3 = rand(1);
+w12_3 = rand(1);
+w13_3 = rand(1);
+
+b1_3 = rand(1);
+
+
+%% Mokymo parametrai
+
+eta = 0.1;
+
+
+%% Tinklo mokymas - Backpropagation
+
+for iter = 1:80000
+
+    % Pirmam elementui y(n-1) neturime
+    y_previous = 0;
+
+    for i = 1:length(x)
+
+        %% =================================================
+        % Feedforward
+        % ==================================================
+
+
+        %% Pirmas sluoksnis
+
+        % Pirmo sluoksnio pasvertos sumos
+
+        v1_1 = x(i) * w11_1 + ...
+               y_previous * w12_1 + ...
+               b1_1;
+
+        v2_1 = x(i) * w21_1 + ...
+               y_previous * w22_1 + ...
+               b2_1;
+
+
+        % Pirmo sluoksnio sigmoidines aktyvacijos funkcijos
+
+        y1_1 = 1 / (1 + exp(-v1_1));
+
+        y2_1 = 1 / (1 + exp(-v2_1));
+
+
+        %% Antras sluoksnis
+
+        % Antro sluoksnio pasvertos sumos
+
+        v1_2 = y1_1 * w11_2 + ...
+               y2_1 * w12_2 + ...
+               b1_2;
+
+        v2_2 = y1_1 * w21_2 + ...
+               y2_1 * w22_2 + ...
+               b2_2;
+
+        v3_2 = y1_1 * w31_2 + ...
+               y2_1 * w32_2 + ...
+               b3_2;
+
+
+        % Antro sluoksnio sigmoidines aktyvacijos funkcijos
+
+        y1_2 = 1 / (1 + exp(-v1_2));
+
+        y2_2 = 1 / (1 + exp(-v2_2));
+
+        y3_2 = 1 / (1 + exp(-v3_2));
+
+
+        %% Trecias sluoksnis
+
+        % Isejimo neurono pasverta suma
+
+        v1_3 = y1_2 * w11_3 + ...
+               y2_2 * w12_3 + ...
+               y3_2 * w13_3 + ...
+               b1_3;
+
+
+        % Isejimo neurono sigmoidine aktyvacijos funkcija
+
+        y1_3 = 1 / (1 + exp(-v1_3));
+
+
+        % Tinklo isejimas
+
+        y = y1_3;
+
+
+        %% =================================================
+        % Klaida
+        % ==================================================
+
+        e = d(i) - y;
+
+
+        %% =================================================
+        % Backpropagation
+        % ==================================================
+
+
+        %% Isejimo sluoksnio delta
+
+        % Sigmoidines funkcijos isvestine:
+        % y * (1 - y)
+
+        delta1_3 = e * y1_3 * (1 - y1_3);
+
+
+        %% Antro sluoksnio delta
+
+        delta1_2 = y1_2 * (1 - y1_2) * ...
+                   delta1_3 * w11_3;
+
+        delta2_2 = y2_2 * (1 - y2_2) * ...
+                   delta1_3 * w12_3;
+
+        delta3_2 = y3_2 * (1 - y3_2) * ...
+                   delta1_3 * w13_3;
+
+
+        %% Pirmo sluoksnio delta
+
+        delta1_1 = y1_1 * (1 - y1_1) * ...
+                  (delta1_2 * w11_2 + ...
+                   delta2_2 * w21_2 + ...
+                   delta3_2 * w31_2);
+
+
+        delta2_1 = y2_1 * (1 - y2_1) * ...
+                  (delta1_2 * w12_2 + ...
+                   delta2_2 * w22_2 + ...
+                   delta3_2 * w32_2);
+
+
+        %% =================================================
+        % Atnaujinami trecio sluoksnio svoriai
+        % ==================================================
+
+        w11_3 = w11_3 + eta * delta1_3 * y1_2;
+
+        w12_3 = w12_3 + eta * delta1_3 * y2_2;
+
+        w13_3 = w13_3 + eta * delta1_3 * y3_2;
+
+        b1_3 = b1_3 + eta * delta1_3;
+
+
+        %% =================================================
+        % Atnaujinami antro sluoksnio svoriai
+        % ==================================================
+
+        % 1 neuronas
+
+        w11_2 = w11_2 + eta * delta1_2 * y1_1;
+
+        w12_2 = w12_2 + eta * delta1_2 * y2_1;
+
+        b1_2 = b1_2 + eta * delta1_2;
+
+
+        % 2 neuronas
+
+        w21_2 = w21_2 + eta * delta2_2 * y1_1;
+
+        w22_2 = w22_2 + eta * delta2_2 * y2_1;
+
+        b2_2 = b2_2 + eta * delta2_2;
+
+
+        % 3 neuronas
+
+        w31_2 = w31_2 + eta * delta3_2 * y1_1;
+
+        w32_2 = w32_2 + eta * delta3_2 * y2_1;
+
+        b3_2 = b3_2 + eta * delta3_2;
+
+
+        %% =================================================
+        % Atnaujinami pirmo sluoksnio svoriai
+        % ==================================================
+
+        % 1 neuronas
+
+        w11_1 = w11_1 + eta * delta1_1 * x(i);
+
+        w12_1 = w12_1 + eta * delta1_1 * y_previous;
+
+
+        % 2 neuronas
+
+        w21_1 = w21_1 + eta * delta2_1 * x(i);
+
+        w22_1 = w22_1 + eta * delta2_1 * y_previous;
+
+
+        %% Atnaujinami pirmo sluoksnio bias
+
+        b1_1 = b1_1 + eta * delta1_1;
+
+        b2_1 = b2_1 + eta * delta2_1;
+
+
+        %% Issaugomas dabartinis isejimas kitam zingsniui
+
+        y_previous = y;
+
+    end
+
+end
+
+
+%% =========================================================
+% Tinklo testavimas po mokymo
+% ==========================================================
+
+x_new = 0.1:1/220:1;
+
+Y = zeros(1, length(x_new));
+
+y_previous = 0;
+
+
+for i = 1:length(x_new)
+
+    %% Pirmas sluoksnis
+
+    v1_1 = x_new(i) * w11_1 + ...
+           y_previous * w12_1 + ...
+           b1_1;
+
+    v2_1 = x_new(i) * w21_1 + ...
+           y_previous * w22_1 + ...
+           b2_1;
+
+
+    % Sigmoidines aktyvacijos funkcijos
+
+    y1_1 = 1 / (1 + exp(-v1_1));
+
+    y2_1 = 1 / (1 + exp(-v2_1));
+
+
+    %% Antras sluoksnis
+
+    v1_2 = y1_1 * w11_2 + ...
+           y2_1 * w12_2 + ...
+           b1_2;
+
+    v2_2 = y1_1 * w21_2 + ...
+           y2_1 * w22_2 + ...
+           b2_2;
+
+    v3_2 = y1_1 * w31_2 + ...
+           y2_1 * w32_2 + ...
+           b3_2;
+
+
+    % Sigmoidines aktyvacijos funkcijos
+
+    y1_2 = 1 / (1 + exp(-v1_2));
+
+    y2_2 = 1 / (1 + exp(-v2_2));
+
+    y3_2 = 1 / (1 + exp(-v3_2));
+
+
+    %% Trecias sluoksnis
+
+    v1_3 = y1_2 * w11_3 + ...
+           y2_2 * w12_3 + ...
+           y3_2 * w13_3 + ...
+           b1_3;
+
+
+    % Sigmoidine aktyvacijos funkcija
+
+    y1_3 = 1 / (1 + exp(-v1_3));
+
+
+    %% Tinklo rezultatas
+
+    Y(i) = y1_3;
+
+
+    %% Dabartinis rezultatas tampa y(n-1)
+
+    y_previous = Y(i);
+
+end
+
+
+%% Rezultatu atvaizdavimas
+
+plot(x_new, Y, 'r');
+
+xlabel('x');
+ylabel('y');
+
+legend('Norimas atsakas', 'Tinklo atsakas');
+
+grid on
