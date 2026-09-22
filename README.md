@@ -1,9 +1,8 @@
-Rekurentinis dirbtinis neuroninis tinklas – Backpropagation
-Užduoties tikslas
+**Rekurentinis dirbtinis neuroninis tinklas – Backpropagation**
 
 Pagal pateiktą neuroninio tinklo struktūrą sužymėti koeficientus, išvesti tinklo atsako ir svorių atnaujinimo formules bei jas realizuoti MATLAB aplinkoje.
 
-Tinklo struktūra
+**Tinklo struktūra**
 
 Realizuotas trijų sluoksnių neuroninis tinklas su grįžtamuoju ryšiu:
 
@@ -13,7 +12,7 @@ Realizuotas trijų sluoksnių neuroninis tinklas su grįžtamuoju ryšiu:
 
 Visuose sluoksniuose naudojama sigmoidinė aktyvacijos funkcija. Tinklas turi 13 svorių ir 6 bias koeficientus.
 
-Tinklo mokymas
+**Tinklo mokymas**
 
 Mokymui naudojamas Backpropagation algoritmas:
 
@@ -25,9 +24,9 @@ Apskaičiuojami neuronų klaidos gradientai.
 
 Atnaujinami visų sluoksnių svoriai ir bias koeficientai.
 
-Mokymosi greitis: η = 0.1 Mokymo epochų skaičius: 10 000
+Mokymosi greitis: η = 0.1 Mokymo epochų skaičius: 80 000
 
-MATLAB realizacija
+**MATLAB realizacija**
 
 Programa parašyta be matricinių operacijų, kiekvieno neurono skaičiavimus ir svorių atnaujinimą pateikiant atskirai.
 
